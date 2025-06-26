@@ -1,0 +1,90 @@
+const questions = [
+  {
+    q: "Qual é o prazo informado ao cliente para chegada do prestador em atendimentos emergenciais?",
+    options: ["30 a 60 minutos", "50 a 120 minutos", "2 a 4 horas", "24 horas"],
+    answer: 1
+  },
+  {
+    q: "Em qual situação devemos abrir a tarefa continuidade?",
+    options: ["Reclamação", "Elogio", "Tarefa continuidade", "Todas as alternativas"],
+    answer: 3
+  },
+  // ... (adicione as outras 18 perguntas aqui)
+];
+
+let current = 0;
+let score = 0;
+let timer;
+let timeLeft = 30;
+
+function startTimer() {
+  timeLeft = 30;
+  document.getElementById("timer").textContent = `⏰ ${timeLeft}`;
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = `⏰ ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      showAnswer(-1);
+    }
+  }, 1000);
+}
+
+function showQuestion() {
+  document.getElementById("feedback").textContent = "";
+  const q = questions[current];
+  document.getElementById("question").textContent = q.q;
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      clearInterval(timer);
+      showAnswer(i);
+    };
+    optionsDiv.appendChild(btn);
+  });
+  startTimer();
+}
+
+function showAnswer(selected) {
+  const q = questions[current];
+  const buttons = document.querySelectorAll("#options button");
+  buttons.forEach((btn, i) => {
+    if (i === q.answer) btn.classList.add("correct");
+    else if (i === selected) btn.classList.add("wrong");
+    btn.disabled = true;
+  });
+  const feedback = document.getElementById("feedback");
+  if (selected === q.answer) {
+    score++;
+    feedback.textContent = "✅";
+  } else {
+    feedback.textContent = "❌";
+  }
+  setTimeout(() => {
+    current++;
+    if (current < questions.length) {
+      showQuestion();
+    } else {
+      endQuiz();
+    }
+  }, 2000);
+}
+
+function endQuiz() {
+  document.querySelector(".container").innerHTML = `<h2>Você acertou ${score} de ${questions.length}!</h2>`;
+  const emoji = score > 10 ? "🥳✨" : "😭";
+  const count = score > 10 ? 20 : 10;
+  for (let i = 0; i < count; i++) {
+    const e = document.createElement("div");
+    e.className = "floating-emoji";
+    e.textContent = emoji;
+    e.style.left = Math.random() * 100 + "vw";
+    e.style.top = "100vh";
+    document.body.appendChild(e);
+  }
+}
+
+showQuestion();
